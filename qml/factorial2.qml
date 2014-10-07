@@ -2,7 +2,7 @@ import QtQuick 2.0
 
 Column {
     height: 300;
-    TextEdit {
+    TextInput {
         id: input; width: 300; height: 30; font.pixelSize: 30; focus: true;
     }
     Rectangle {
