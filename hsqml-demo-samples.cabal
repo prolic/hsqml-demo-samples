@@ -36,6 +36,17 @@ Executable hsqml-factorial2
         hsqml      == 0.3.*
     GHC-options: -threaded
 
+Executable hsqml-opengl1
+    Default-language: Haskell2010
+    Hs-source-dirs: src
+    Main-is: OpenGL1.hs
+    Build-depends:
+        base       == 4.*,
+        text       >= 0.11 && < 1.2,
+        OpenGL     == 2.9.*,
+        hsqml      == 0.3.*
+    GHC-options: -threaded
+
 Source-repository head
     type:     darcs
     location: http://hub.darcs.net/komadori/hsqml-demo-samples
