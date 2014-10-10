@@ -16,6 +16,11 @@ Data-files:    *.qml
 Description:
     HsQML sample programs
 
+Flag OpenGL
+    Description:
+        Build sample programs which use OpenGL.
+    Default: True
+
 Executable hsqml-factorial1
     Default-language: Haskell2010
     Hs-source-dirs: src
@@ -46,6 +51,8 @@ Executable hsqml-opengl1
         OpenGL     == 2.9.*,
         hsqml      == 0.3.*
     GHC-options: -threaded
+    if !flag(OpenGL)
+        Buildable: False
 
 Source-repository head
     type:     darcs
