@@ -14,9 +14,12 @@ import Foreign.Storable
 
 import Paths_hsqml_demo_samples
 
-vertShaderText :: Text
-vertShaderText = T.pack $ unlines [
-    "#version 100",
+shaderHead :: OpenGLType -> [String]
+shaderHead OpenGLDesktop = ["#version 120", "#define highp"]
+shaderHead OpenGLES = ["#version 100"]
+
+vertShaderText :: OpenGLType -> Text
+vertShaderText t = T.pack $ unlines $ shaderHead t ++ [
     "attribute highp vec4 position;",
     "attribute highp vec4 color;",
     "varying highp vec4 vColor;",
@@ -25,9 +28,8 @@ vertShaderText = T.pack $ unlines [
     "    vColor = color;",
     "}"]
 
-fragShaderText :: Text
-fragShaderText = T.pack $ unlines [
-    "#version 100",
+fragShaderText :: OpenGLType -> Text
+fragShaderText t = T.pack $ unlines $ shaderHead t ++ [
     "varying highp vec4 vColor;",
     "void main() {",
     "    gl_FragColor = vColor;",
@@ -45,15 +47,16 @@ dataArray = [
 data GLData = GLData
     Program AttribLocation AttribLocation BufferObject
 
-initGL :: IO GLData
-initGL = do
+initGL :: OpenGLSetup -> IO GLData
+initGL setup = do
+    let ctype = openGLType setup
     vertShader <- createShader VertexShader
-    shaderSourceBS vertShader $= T.encodeUtf8 vertShaderText 
+    shaderSourceBS vertShader $= (T.encodeUtf8 $ vertShaderText ctype)
     compileShader vertShader
     -- vsl <- get $ shaderInfoLog vertShader
     -- putStrLn vsl
     fragShader <- createShader FragmentShader
-    shaderSourceBS fragShader $= T.encodeUtf8 fragShaderText 
+    shaderSourceBS fragShader $= (T.encodeUtf8 $ fragShaderText ctype)
     compileShader fragShader
     -- fsl <- get $ shaderInfoLog fragShader
     -- putStrLn fsl
@@ -76,7 +79,7 @@ initGL = do
 
 paintGL :: OpenGLPaint GLData Double -> IO ()
 paintGL paint = do
-    let (GLData program posLoc colLoc buf) = initData paint
+    let (GLData program posLoc colLoc buf) = setupData paint
     let num = realToFrac $ modelData paint
     viewport $= (Position 0 0, Size 250 250)
     clearColor $= Color4 num (1-num) (1-num) 1
