@@ -4,6 +4,7 @@ import Graphics.QML
 import Graphics.QML.Canvas
 import Graphics.Rendering.OpenGL.GL
 import Graphics.Rendering.OpenGL.GLU.Errors
+import Graphics.Rendering.OpenGL.Raw.ARB.ShaderObjects (glUniformMatrix4fv)
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
@@ -22,10 +23,12 @@ vertShaderText :: OpenGLType -> Text
 vertShaderText t = T.pack $ unlines $ shaderHead t ++ [
     "attribute highp vec4 position;",
     "attribute highp vec4 color;",
+    "uniform highp mat4 matrix;",
+    "uniform highp float model;",
     "varying highp vec4 vColor;",
     "void main() {",
-    "    gl_Position = position;",
-    "    vColor = color;",
+    "    gl_Position = matrix * position;",
+    "    vColor = mix(color, vec4(1,1,1,2) - color, model);",
     "}"]
 
 fragShaderText :: OpenGLType -> Text
@@ -45,27 +48,35 @@ dataArray = [
   0.0, 0.0, 1.0, 1.0]
 
 data GLData = GLData
-    Program AttribLocation AttribLocation BufferObject
+    Program UniformLocation UniformLocation
+    AttribLocation AttribLocation BufferObject
 
-initGL :: OpenGLSetup -> IO GLData
-initGL setup = do
+checkErrors :: String -> IO ()
+checkErrors title = do
+    errs <- get errors
+    if null errs then return () else putStrLn $ title ++ ": " ++ show errs
+
+setupGL :: OpenGLSetup -> IO GLData
+setupGL setup = do
     let ctype = openGLType setup
     vertShader <- createShader VertexShader
     shaderSourceBS vertShader $= (T.encodeUtf8 $ vertShaderText ctype)
     compileShader vertShader
     -- vsl <- get $ shaderInfoLog vertShader
-    -- putStrLn vsl
+    -- putStrLn $ show vsl
     fragShader <- createShader FragmentShader
     shaderSourceBS fragShader $= (T.encodeUtf8 $ fragShaderText ctype)
     compileShader fragShader
     -- fsl <- get $ shaderInfoLog fragShader
-    -- putStrLn fsl
+    -- putStrLn $ show fsl
     program <- createProgram
     attachShader program vertShader
     attachShader program fragShader
     linkProgram program
     -- pl <- get $ programInfoLog program
-    -- putStrLn pl
+    -- putStrLn $ show pl
+    matLoc <- get $ uniformLocation program "matrix"
+    modelLoc <- get $ uniformLocation program "model"
     posLoc <- get $ attribLocation program "position"
     colLoc <- get $ attribLocation program "color"
     buf <- genObjectName
@@ -75,16 +86,18 @@ initGL setup = do
             (fromIntegral $ len * sizeOf (head dataArray),
              ptr, StaticDraw)
     bindBuffer ArrayBuffer $= Nothing
-    return $ GLData program posLoc colLoc buf
+    checkErrors "Setup"
+    return $ GLData program matLoc modelLoc posLoc colLoc buf
 
 paintGL :: OpenGLPaint GLData Double -> IO ()
 paintGL paint = do
-    let (GLData program posLoc colLoc buf) = setupData paint
-    let num = realToFrac $ modelData paint
-    viewport $= (Position 0 0, Size 250 250)
-    clearColor $= Color4 num (1-num) (1-num) 1
-    clear [ColorBuffer, DepthBuffer]
+    let (GLData program matLoc modelLoc posLoc colLoc buf) = setupData paint
+    let num = realToFrac $ modelData paint :: GLfloat
     currentProgram $= Just program
+    let (UniformLocation matLocId) = matLoc
+    glUniformMatrix4fv matLocId 1 0 (
+        castPtr $ matrixPtr paint :: Ptr GLfloat)
+    uniform modelLoc $= Index1 num
     bindBuffer ArrayBuffer $= Just buf
     vertexAttribArray posLoc $= Enabled
     vertexAttribPointer posLoc $=
@@ -98,17 +111,19 @@ paintGL paint = do
     vertexAttribArray colLoc $= Disabled
     bindBuffer ArrayBuffer $= Nothing
     currentProgram $= Nothing
+    checkErrors "Paint"
 
-deinitGL :: GLData -> IO ()
-deinitGL (GLData program _ _ buf) = do
+cleanupGL :: GLData -> IO ()
+cleanupGL (GLData program _ _ _ _ buf) = do
     deleteObjectName buf
     deleteObjectName program
+    checkErrors "Cleanup"
 
 main :: IO ()
 main = do
     clazz <- newClass [
         defPropertyConst' "myDelegate" (\_ ->
-            newOpenGLDelegate initGL paintGL deinitGL)]
+            newOpenGLDelegate setupGL paintGL cleanupGL)]
     ctx <- newObject clazz ()
     doc <- getDataFileName "opengl1.qml"
     runEngineLoop defaultEngineConfig {
