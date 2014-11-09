@@ -5,7 +5,7 @@ import HsQML.Canvas 1.0
 Column {
     width: 500;
 
-    Rectangle {
+    Item {
         width: 500; height: 500;
 
         Rectangle {
