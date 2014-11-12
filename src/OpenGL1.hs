@@ -48,7 +48,7 @@ dataArray = [
   0.0, 0.0, 1.0, 1.0]
 
 data GLData = GLData
-    Program UniformLocation UniformLocation
+    Program Shader Shader UniformLocation UniformLocation
     AttribLocation AttribLocation BufferObject
 
 checkErrors :: String -> IO ()
@@ -58,6 +58,10 @@ checkErrors title = do
 
 setupGL :: OpenGLSetup -> IO GLData
 setupGL setup = do
+    putStrLn $ (showString "Context is " .
+        shows (openGLType setup) . showString " " .
+        shows (openGLMajor setup) . showString "." .
+        shows (openGLMinor setup)) ""
     let ctype = openGLType setup
     vertShader <- createShader VertexShader
     shaderSourceBS vertShader $= (T.encodeUtf8 $ vertShaderText ctype)
@@ -87,11 +91,12 @@ setupGL setup = do
              ptr, StaticDraw)
     bindBuffer ArrayBuffer $= Nothing
     checkErrors "Setup"
-    return $ GLData program matLoc modelLoc posLoc colLoc buf
+    return $ GLData
+        program vertShader fragShader matLoc modelLoc posLoc colLoc buf
 
 paintGL :: OpenGLPaint GLData Double -> IO ()
 paintGL paint = do
-    let (GLData program matLoc modelLoc posLoc colLoc buf) = setupData paint
+    let (GLData program _ _ matLoc modelLoc posLoc colLoc buf) = setupData paint
     let num = realToFrac $ modelData paint :: GLfloat
     currentProgram $= Just program
     let (UniformLocation matLocId) = matLoc
@@ -114,9 +119,11 @@ paintGL paint = do
     checkErrors "Paint"
 
 cleanupGL :: GLData -> IO ()
-cleanupGL (GLData program _ _ _ _ buf) = do
+cleanupGL (GLData program vertShader fragShader _ _ _ _ buf) = do
     deleteObjectName buf
     deleteObjectName program
+    deleteObjectName vertShader
+    deleteObjectName fragShader
     checkErrors "Cleanup"
 
 main :: IO ()
