@@ -1,0 +1,11 @@
+HsQML Samples - Release History
+
+release-0.3.2.0 - 2014.11.13
+
+  * Added OpenGL sample.
+  * Relaxed Cabal dependency constraint on 'text'.
+  * Fixed factorial samples to use single-line edit controls. 
+
+release-0.3.0.0 - 2014.05.04
+
+  * Initial release.
