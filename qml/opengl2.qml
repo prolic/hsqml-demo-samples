@@ -104,6 +104,27 @@ Window {
                 columnSpacing: 5;
 
                 Label {
+                    text: 'Vendor String';
+                    font.bold: true;
+                }
+                Label {
+                    text: vendor;
+                }
+                Label {
+                    text: 'Renderer String';
+                    font.bold: true;
+                }
+                Label {
+                    text: renderer;
+                }
+                Label {
+                    text: 'Version String';
+                    font.bold: true;
+                }
+                Label {
+                    text: version;
+                }
+                Label {
                     text: 'Major Version';
                     font.bold: true;
                 }
@@ -146,11 +167,13 @@ Window {
 
     Window {
         id: victim;
-        title: 'Victim Window'; color: 'blue';
+        title: 'Victim Window';
         visible: true;
 
         HaskellCanvas {
             id: victimCanvas;
+            anchors.fill: parent;
+            delegate: glDelegate;
         }
         OpenGLContextControl {
             id: victimCtrl;
