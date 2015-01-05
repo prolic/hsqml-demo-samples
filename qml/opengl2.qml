@@ -74,6 +74,20 @@ Window {
                         ListElement { text: 'Disabled'; value: false; }
                     }
                 }
+                Label {
+                    text: 'Depth Buffer Size';
+                    font.bold: true;
+                }
+                TextField {
+                    id: depthBufferSizeField;
+                }
+                Label {
+                    text: 'Stencil Buffer Size';
+                    font.bold: true;
+                }
+                TextField {
+                    id: stencilBufferSizeField;
+                }
                 Button {
                     text: 'Control Context';
                     onClicked: {
@@ -90,6 +104,10 @@ Window {
                         victimCtrl.deprecatedFunctions =
                             deprecatedFunctionsField.model.get(
                                 deprecatedFunctionsField.currentIndex).value;
+                        victimCtrl.depthBufferSize =
+                            parseInt(depthBufferSizeField.text);
+                        victimCtrl.stencilBufferSize =
+                            parseInt(stencilBufferSizeField.text);
                         victimCtrl.when = true;
                         victim.visible = true;
                     }
@@ -160,6 +178,20 @@ Window {
                 }
                 Label {
                     text: victimCtrl.deprecatedFunctions;
+                }
+                Label {
+                    text: 'Depth Buffer Size';
+                    font.bold: true;
+                }
+                Label {
+                    text: victimCtrl.depthBufferSize;
+                }
+                Label {
+                    text: 'Stencil Buffer Size';
+                    font.bold: true;
+                }
+                Label {
+                    text: victimCtrl.stencilBufferSize;
                 }
             }
         }
