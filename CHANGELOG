@@ -1,5 +1,9 @@
 HsQML Samples - Release History
 
+release-0.3.3.0 - 2015.01.20
+
+  * Add OpenGLControlContext sample.
+
 release-0.3.2.0 - 2014.11.13
 
   * Added OpenGL sample.
