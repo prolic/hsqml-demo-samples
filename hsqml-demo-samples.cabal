@@ -9,7 +9,7 @@ Author:        Robin KAY
 Maintainer:    komadori@gekkou.co.uk
 Stability:     experimental
 Homepage:      http://www.gekkou.co.uk/software/hsqml/
-Category:      Graphics
+Category:      Graphics, GUI
 Synopsis:      HsQML sample programs
 Data-dir:      qml
 Data-files:    *.qml
