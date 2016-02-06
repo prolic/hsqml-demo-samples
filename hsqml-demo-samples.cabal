@@ -43,6 +43,16 @@ Executable hsqml-factorial2
         hsqml      == 0.3.*
     GHC-options: -threaded
 
+Executable hsqml-model1
+    Default-language: Haskell2010
+    Hs-source-dirs: src
+    Main-is: Model1.hs
+    Build-depends:
+        base       == 4.*,
+        text       >= 0.11 && < 1.3,
+        hsqml      >= 0.3.4 && < 0.4
+    GHC-options: -threaded
+
 Executable hsqml-opengl1
     Default-language: Haskell2010
     Hs-source-dirs: src
