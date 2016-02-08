@@ -4,7 +4,7 @@ import Graphics.QML
 import Graphics.QML.Canvas
 import Graphics.Rendering.OpenGL.GL
 import Graphics.Rendering.OpenGL.GLU.Errors
-import Graphics.Rendering.OpenGL.Raw.ARB.ShaderObjects (glUniformMatrix4fv)
+import Graphics.Rendering.OpenGL.Raw.ARB.ShaderObjects (glUniformMatrix4fvARB)
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
@@ -100,7 +100,7 @@ paintGL paint = do
     let num = realToFrac $ modelData paint :: GLfloat
     currentProgram $= Just program
     let (UniformLocation matLocId) = matLoc
-    glUniformMatrix4fv matLocId 1 0 (
+    glUniformMatrix4fvARB matLocId 1 0 (
         castPtr $ matrixPtr paint :: Ptr GLfloat)
     uniform modelLoc $= Index1 num
     bindBuffer ArrayBuffer $= Just buf
