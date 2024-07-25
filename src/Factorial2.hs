@@ -6,6 +6,7 @@ import Control.Exception
 import Data.IORef
 import Data.Text (Text)
 import qualified Data.Text as T
+import Text.Read (readMaybe)
 
 import Paths_hsqml_demo_samples
 
@@ -17,7 +18,10 @@ main = do
         defPropertySigRO' "result" skey (\_ ->
             readIORef state),
         defMethod' "factorial" (\obj txt -> do
-            let n = read $ T.unpack txt :: Integer
+            let maybeN = readMaybe (T.unpack txt) :: Maybe Integer
+                n = case maybeN of
+                    Nothing -> 0
+                    Just n -> n
             writeIORef state $ T.pack "Working..."
             fireSignal skey obj
             forkIO $ do

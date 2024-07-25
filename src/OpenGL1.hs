@@ -1,10 +1,10 @@
 module Main where
 
+import Graphics.GL.ARB.ShaderObjects (glUniformMatrix4fvARB)
 import Graphics.QML
 import Graphics.QML.Canvas
 import Graphics.Rendering.OpenGL.GL
 import Graphics.Rendering.OpenGL.GLU.Errors
-import Graphics.Rendering.OpenGL.Raw.ARB.ShaderObjects (glUniformMatrix4fvARB)
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
